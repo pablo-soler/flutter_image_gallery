@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "825430711598",
+    "firebase_url": "https://imagegallery-bbe55.firebaseio.com",
+    "project_id": "imagegallery-bbe55",
+    "storage_bucket": "imagegallery-bbe55.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:825430711598:android:a93ce22ba2453e3b526ebf",
+        "android_client_info": {
+          "package_name": "com.example.image_galery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "825430711598-8fu0damvqifmc3g1geg5cnrgg69nait7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOH2VKgpeVf0O60Ft4vcSgfTYHlSA3SGs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "825430711598-8fu0damvqifmc3g1geg5cnrgg69nait7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,8 +1,5 @@
-import 'dart:convert';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
 
@@ -14,89 +11,71 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: Text("Image Gallery"),
         ),
-        body: Gallery(),
+        body: ImageGallery(),
       ),
     );
   }
 }
 
-class Gallery extends StatefulWidget {
-  @override
-  _GalleryState createState() => _GalleryState();
-}
-
-class _GalleryState extends State<Gallery> {
-  bool loading;
-  List<String> ids;
-
-  @override
-  void initState() {
-    loading = true;
-    ids = [];
-
-    _loadIds();
-
-    super.initState();
-  }
-
-  void _loadIds() async {
-    final response =
-        await http.get('https://picsum.photos/v2/list?page=2&limit=100');
-    final json = jsonDecode(response.body);
-    List<String> _ids = [];
-    for (var image in json) {
-      _ids.add(image['id']);
-    }
-
-    setState(() {
-      loading = false;
-      ids = _ids;
-    });
-  }
-
+class ImageGallery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    if (loading) {
-      return Center(
-        child: CircularProgressIndicator(),
-      );
-    } else {
-      return GridView.builder(
-        gridDelegate:
-            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-        itemBuilder: (context, index) => GestureDetector(
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => ImagePage(ids[index]),
-              ),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: StreamBuilder(
+        stream: Firestore.instance.collection('imgs').snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: CircularProgressIndicator(),
             );
-          },
-          child: Image.network(
-            'https://picsum.photos/id/${ids[index]}/300/300',
-          ),
-        ),
-        itemCount: ids.length,
-      );
-    }
+          } else {
+            List<DocumentSnapshot> docs = snapshot.data.documents;
+            return GridView.builder(
+              gridDelegate:
+                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+              itemBuilder: (context, index) => GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ImagePage(docs[index].data['url']),
+                    ),
+                  );
+                },
+                child: Image.network(
+                  docs[index].data['url'],
+                ),
+              ),
+              itemCount: docs.length,
+            );
+          }
+        },
+      ),
+      floatingActionButton: new FloatingActionButton(
+        onPressed: () {},
+        child: new Icon(Icons.add_a_photo),
+        tooltip: 'Add Image',
+      ),
+    );
   }
 }
 
 class ImagePage extends StatelessWidget {
-  final String id;
+  final String url;
 
-  ImagePage(this.id);
+  ImagePage(this.url);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+        ),
         backgroundColor: Colors.black,
-      ),
-      backgroundColor: Colors.black,
-      body:Center(child:Image.network(
-            'https://picsum.photos/id/$id/600/600',
-          ),)
-    );
+        body: Center(
+          child: Image.network(
+            url,
+          ),
+        ));
   }
 }
