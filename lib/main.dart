@@ -1,6 +1,7 @@
 import 'package:photo_view/photo_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'ImageUpload.dart';
 
@@ -15,9 +16,61 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: Text("Image Gallery"),
         ),
+        drawer: LateralMenu(),
         body: ImageGallery(),
       ),
     );
+  }
+}
+
+class LateralMenu extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> list = <Widget>[];
+    list.add(FlatButton(
+      child: Text("NEW ALBUM"),
+      color: Colors.amberAccent,
+      onPressed: () {},
+    ));
+    list.add(
+      Container(
+        child: InkWell(
+          onTap: () => {},
+          child: ListTile(
+            title: Text("ALL PHOTOS"),
+          ),
+        ),
+      ),
+    );
+
+    return Drawer(
+        child: StreamBuilder(
+      stream: Firestore.instance.collection('albums').snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        } else {
+          List<DocumentSnapshot> docs = snapshot.data.documents;
+          for (var i = 0; i < docs.length; i++) {
+            list.add(
+              Container(
+                child: InkWell(
+                  onTap: () => {},
+                  child: ListTile(
+                    title: Text(docs[i].data['name']),
+                  ),
+                ),
+              ),
+            );
+          }
+          return ListView(
+            children: list,
+          );
+        }
+      },
+    ));
   }
 }
 
@@ -46,8 +99,9 @@ class ImageGallery extends StatelessWidget {
                     ),
                   );
                 },
-                child: Image.network(
-                  docs[index].data['url'],
+                child: FadeInImage.memoryNetwork(
+                  image: docs[index].data['url'],
+                  placeholder: kTransparentImage,
                 ),
               ),
               itemCount: docs.length,
@@ -113,7 +167,7 @@ class PhotoGallery extends StatelessWidget {
           child: PhotoViewGallery.builder(
         scrollPhysics: const BouncingScrollPhysics(),
         builder: (BuildContext context, int index) {
-          index=pos;
+          index = pos;
           return PhotoViewGalleryPageOptions(
             imageProvider: NetworkImage(
               galleryItems[index].data['url'],
