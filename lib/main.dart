@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,7 +12,42 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: Text("Image Gallery"),
         ),
+        drawer: LateralMenu(),
         body: ImageGallery(),
+      ),
+    );
+  }
+}
+
+class LateralMenu extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> list = <Widget>[];
+    list.add(FlatButton(
+      child: Text("AÑADIR ALBUM"),
+      color: Colors.amberAccent,
+      onPressed: () {},
+    ));
+    for (var i=0; i<10; i++){ 
+      list.add(Container(
+              child: InkWell(
+                onTap: () => {},
+                child: ListTile(
+                  title: Text("Album" + i.toString()),
+                ),
+              ),
+            ),);}
+    
+
+    return Drawer(
+      child: ListView(
+        children: list,
+        /* children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountName: Text("NOMBRE"),
+              accountEmail: Text("email@email.com"),
+            ),
+          ],*/
       ),
     );
   }
@@ -42,8 +78,9 @@ class ImageGallery extends StatelessWidget {
                     ),
                   );
                 },
-                child: Image.network(
-                  docs[index].data['url'],
+                child: FadeInImage.memoryNetwork(
+                  image: docs[index].data['url'],
+                  placeholder: kTransparentImage,
                 ),
               ),
               itemCount: docs.length,
