@@ -1,11 +1,8 @@
 import 'package:photo_view/photo_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:transparent_image/transparent_image.dart';
-=======
 import 'package:photo_view/photo_view_gallery.dart';
->>>>>>> 9f0074bbc952dba30d1de72e9ade6d275042a9a3
 
 void main() => runApp(MyApp());
 
