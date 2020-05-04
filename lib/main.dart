@@ -1,6 +1,11 @@
+import 'package:photo_view/photo_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:transparent_image/transparent_image.dart';
+=======
+import 'package:photo_view/photo_view_gallery.dart';
+>>>>>>> 9f0074bbc952dba30d1de72e9ade6d275042a9a3
 
 void main() => runApp(MyApp());
 
@@ -74,7 +79,7 @@ class ImageGallery extends StatelessWidget {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => ImagePage(docs[index].data['url']),
+                      builder: (context) => PhotoGallery(docs, index),
                     ),
                   );
                 },
@@ -105,14 +110,59 @@ class ImagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-        ),
+      appBar: AppBar(
         backgroundColor: Colors.black,
-        body: Center(
-          child: Image.network(
+      ),
+      backgroundColor: Colors.black,
+      body: Center(
+        child: PhotoView(
+          imageProvider: NetworkImage(
             url,
           ),
-        ));
+        ),
+      ),
+    );
+  }
+}
+
+class PhotoGallery extends StatelessWidget {
+  final galleryItems;
+  final int pos;
+
+  PhotoGallery(this.galleryItems, this.pos);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+      ),
+      backgroundColor: Colors.black,
+      body: Container(
+          child: PhotoViewGallery.builder(
+        scrollPhysics: const BouncingScrollPhysics(),
+        builder: (BuildContext context, int index) {
+          index=pos;
+          return PhotoViewGalleryPageOptions(
+            imageProvider: NetworkImage(
+              galleryItems[index].data['url'],
+            ),
+            initialScale: PhotoViewComputedScale.contained,
+          );
+        },
+        itemCount: galleryItems.length,
+        loadingBuilder: (context, event) => Center(
+          child: Container(
+            width: 20.0,
+            height: 20.0,
+            child: CircularProgressIndicator(
+              value: event == null
+                  ? 0
+                  : event.cumulativeBytesLoaded / event.expectedTotalBytes,
+            ),
+          ),
+        ),
+      )),
+    );
   }
 }
