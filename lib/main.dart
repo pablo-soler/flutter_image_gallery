@@ -26,32 +26,49 @@ class LateralMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Widget> list = <Widget>[];
     list.add(FlatButton(
-      child: Text("AÑADIR ALBUM"),
+      child: Text("NEW ALBUM"),
       color: Colors.amberAccent,
       onPressed: () {},
     ));
-    for (var i=0; i<10; i++){ 
-      list.add(Container(
-              child: InkWell(
-                onTap: () => {},
-                child: ListTile(
-                  title: Text("Album" + i.toString()),
-                ),
-              ),
-            ),);}
-    
-
-    return Drawer(
-      child: ListView(
-        children: list,
-        /* children: <Widget>[
-            UserAccountsDrawerHeader(
-              accountName: Text("NOMBRE"),
-              accountEmail: Text("email@email.com"),
-            ),
-          ],*/
+    list.add(
+      Container(
+        child: InkWell(
+          onTap: () => {},
+          child: ListTile(
+            title: Text("ALL PHOTOS"),
+          ),
+        ),
       ),
     );
+
+    return Drawer(
+        child: StreamBuilder(
+      stream: Firestore.instance.collection('albums').snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        } else {
+          List<DocumentSnapshot> docs = snapshot.data.documents;
+          for (var i = 0; i < docs.length; i++) {
+            list.add(
+              Container(
+                child: InkWell(
+                  onTap: () => {},
+                  child: ListTile(
+                    title: Text(docs[i].data['name']),
+                  ),
+                ),
+              ),
+            );
+          }
+          return ListView(
+            children: list,
+          );
+        }
+      },
+    ));
   }
 }
 
@@ -139,7 +156,7 @@ class PhotoGallery extends StatelessWidget {
           child: PhotoViewGallery.builder(
         scrollPhysics: const BouncingScrollPhysics(),
         builder: (BuildContext context, int index) {
-          index=pos;
+          index = pos;
           return PhotoViewGalleryPageOptions(
             imageProvider: NetworkImage(
               galleryItems[index].data['url'],
