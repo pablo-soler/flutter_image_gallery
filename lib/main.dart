@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'ImageUpload.dart';
+
 
 void main() => runApp(MyApp());
 
@@ -116,7 +118,16 @@ class ImageGallery extends StatelessWidget {
         },
       ),
       floatingActionButton: new FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push
+          (
+            context,
+            MaterialPageRoute(builder: (context){
+              return new UploadPhotoPage();
+
+            })
+          );
+        },
         child: new Icon(Icons.add_a_photo),
         tooltip: 'Add Image',
       ),
