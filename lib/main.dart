@@ -53,14 +53,22 @@ class LateralMenu extends StatelessWidget {
           List<DocumentSnapshot> docs = snapshot.data.documents;
           for (var i = 0; i < docs.length; i++) {
             list.add(
-              Container(
-                child: InkWell(
+                InkWell(
                   onTap: () => {},
-                  child: ListTile(
-                    title: Text(docs[i].data['name']),
+                  child: Container(
+                     decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(
+                        "https://homepages.cae.wisc.edu/~ece533/images/cat.png"),
+                    fit: BoxFit.cover,
                   ),
                 ),
-              ),
+                    child: ListTile(
+                      title: Text(docs[i].data['name']),
+                    ),
+                  ),
+                ),
+            
             );
           }
           return ListView(
