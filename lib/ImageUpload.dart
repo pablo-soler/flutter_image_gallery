@@ -16,6 +16,7 @@ class UploadPhotoPage extends StatefulWidget {
 class _UploadPhotoPageState extends State<UploadPhotoPage> {
   File sampleImage;
   String _myValue;
+  String url;
   final formKey = new GlobalKey<FormState>();
 
   Future getImage() async {
@@ -35,46 +36,83 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
       return false;
     }
   }
+  void uploadStatusImage() async{
+    if(validateAndSave()){
+      final StorageReference postImageRef = FirebaseStorage.instance.ref().child("Post Images");
+      var timeKey = DateTime.now();
+      final StorageUploadTask uploadTask = postImageRef.child(timeKey.toString() + ".jpg").putFile(sampleImage);
+      var imageUrl =  await (await uploadTask.onComplete).ref.getDownloadURL();
+      url=imageUrl.toString();
+      goToHome();
+      saveToDatabase();
+    }
+  }
+
+  void saveToDatabase(){
+    var dbTimeKey = DateTime.now();
+    var formatDate = DateFormat('MMM d, yyyy');
+    var formatTime = DateFormat('EEEE, hh:mm aaa');
+
+    String date = formatDate.format(dbTimeKey);
+    String time = formatTime.format(dbTimeKey);
+
+   Firestore.instance.collection('imgs').document(dbTimeKey.toString()).setData({
+      "url": url,
+      "description": _myValue,
+      "date": date,
+      "time":time,
+      "albums":null,
+    });
+
+  }
+
+  void goToHome(){
+    Navigator.pop(context);
+
+  }
 
   Widget enableUpload() {
-    return new Container(
-      child: Form(
-        key: formKey,
-        child: Column(children: <Widget>[
-          Image.file(
-            sampleImage,
+    return SingleChildScrollView(
+      child:
+        Container(
+          child: Form(
+            key: formKey,
+            child: Column(children: <Widget>[
+              Image.file(
+                sampleImage,
+              ),
+              SizedBox(
+                height: 15.0,
+              ),
+              Center(
+                child: Container(
+                  width: 300,
+                  child: TextFormField(
+                      decoration: new InputDecoration(
+                        labelText: 'Description',
+                      ),
+                      validator: (value) {
+                        return value.isEmpty ? 'Description is required' : null;
+                      },
+                      onSaved: (value) {
+                        _myValue = value;
+                      }),
+                ),
+              ),
+              SizedBox(
+                height: 15.0,
+              ),
+              //AlbumDropdown(),
+              RaisedButton(
+                child: Text("Upload Image"),
+                elevation: 10.0,
+                textColor: Colors.white,
+                color: Colors.green,
+                onPressed: uploadStatusImage,
+              ),
+            ]),
           ),
-          SizedBox(
-            height: 15.0,
-          ),
-          Center(
-            child: Container(
-              width: 300,
-              child: TextFormField(
-                  decoration: new InputDecoration(
-                    labelText: 'Description',
-                  ),
-                  validator: (value) {
-                    return value.isEmpty ? 'Description is required' : null;
-                  },
-                  onSaved: (value) {
-                    _myValue = value;
-                  }),
-            ),
-          ),
-          SizedBox(
-            height: 15.0,
-          ),
-          //AlbumDropdown(),
-          RaisedButton(
-            child: Text("Upload Image"),
-            elevation: 10.0,
-            textColor: Colors.white,
-            color: Colors.green,
-            onPressed: validateAndSave,
-          ),
-        ]),
-      ),
+        ),
     );
   }
 
