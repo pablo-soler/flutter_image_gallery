@@ -66,7 +66,7 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
 
   }
 
-  void goToHome(){
+  void goToHome() {
     Navigator.pop(context);
 
   }
