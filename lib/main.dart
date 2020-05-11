@@ -1,10 +1,10 @@
+import 'package:image_galery/bd.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'ImageUpload.dart';
-
 
 void main() => runApp(MyApp());
 
@@ -55,22 +55,21 @@ class LateralMenu extends StatelessWidget {
           List<DocumentSnapshot> docs = snapshot.data.documents;
           for (var i = 0; i < docs.length; i++) {
             list.add(
-                InkWell(
-                  onTap: () => {},
-                  child: Container(
-                     decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(
-                        "https://homepages.cae.wisc.edu/~ece533/images/cat.png"),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                    child: ListTile(
-                      title: Text(docs[i].data['name']),
+              InkWell(
+                onTap: () => {},
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(
+                          "https://homepages.cae.wisc.edu/~ece533/images/cat.png"),
+                      fit: BoxFit.cover,
                     ),
                   ),
+                  child: ListTile(
+                    title: Text(docs[i].data['name']),
+                  ),
                 ),
-            
+              ),
             );
           }
           return ListView(
@@ -117,18 +116,13 @@ class ImageGallery extends StatelessWidget {
           }
         },
       ),
-      floatingActionButton: new FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push
-          (
-            context,
-            MaterialPageRoute(builder: (context){
-              return new UploadPhotoPage();
-
-            })
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return UploadPhotoPage();
+          }));
         },
-        child: new Icon(Icons.add_a_photo),
+        child: Icon(Icons.add_a_photo),
         tooltip: 'Add Image',
       ),
     );
@@ -160,9 +154,10 @@ class ImagePage extends StatelessWidget {
 
 class PhotoGallery extends StatelessWidget {
   final galleryItems;
-  final int pos;
-
-  PhotoGallery(this.galleryItems, this.pos);
+  final int initialPos;
+  int pos;
+  bool first = true;
+  PhotoGallery(this.galleryItems, this.initialPos);
 
   @override
   Widget build(BuildContext context) {
@@ -172,30 +167,77 @@ class PhotoGallery extends StatelessWidget {
       ),
       backgroundColor: Colors.black,
       body: Container(
-          child: PhotoViewGallery.builder(
-        scrollPhysics: const BouncingScrollPhysics(),
-        builder: (BuildContext context, int index) {
-          index = pos;
-          return PhotoViewGalleryPageOptions(
-            imageProvider: NetworkImage(
-              galleryItems[index].data['url'],
-            ),
-            initialScale: PhotoViewComputedScale.contained,
-          );
-        },
-        itemCount: galleryItems.length,
-        loadingBuilder: (context, event) => Center(
-          child: Container(
-            width: 20.0,
-            height: 20.0,
-            child: CircularProgressIndicator(
-              value: event == null
-                  ? 0
-                  : event.cumulativeBytesLoaded / event.expectedTotalBytes,
+        child: PhotoViewGallery.builder(
+          scrollPhysics: const BouncingScrollPhysics(),
+          builder: (BuildContext context, int index) {
+            if (first) {
+              index = initialPos;
+              first = false;
+            }
+            pos = index;
+
+            return PhotoViewGalleryPageOptions(
+              imageProvider: NetworkImage(
+                galleryItems[index].data['url'],
+              ),
+              initialScale: PhotoViewComputedScale.contained,
+            );
+          },
+          itemCount: galleryItems.length,
+          loadingBuilder: (context, event) => Center(
+            child: Container(
+              width: 20.0,
+              height: 20.0,
+              child: CircularProgressIndicator(
+                value: event == null
+                    ? 0
+                    : event.cumulativeBytesLoaded / event.expectedTotalBytes,
+              ),
             ),
           ),
         ),
-      )),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          print('hola');
+          _showDeleteDialog(galleryItems[pos].documentID, galleryItems[pos].data['storageId']);
+        },
+        child: new Icon(Icons.delete),
+        tooltip: 'Delete Image',
+      ),
     );
   }
+
+  Future<void> _showDeleteDialog(String id, String storageId) async {
+  return showDialog<void>(
+    context: null,
+    barrierDismissible: false, // user must tap button!
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Delete Image'),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('Would you like to delete this image?'),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Cancel'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          FlatButton(
+            child: Text('Accept'),
+            onPressed: () {
+              deletePhotoById(id, storageId);
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 }
