@@ -135,7 +135,7 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
             ),
             Container(
               margin: EdgeInsets.symmetric(vertical: 20.0),
-              height: 20.0,
+              height: 10.0,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: albumsText,
