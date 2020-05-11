@@ -1,8 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Album {
+  String id;
   String name;
-  String bg; //He usado reference de la img para definirlo pero si siempre se usará url para definir una imagen, será mas sencillo que sea String url
+  String bg = ""; //He usado reference de la img para definirlo pero si siempre se usará url para definir una imagen, será mas sencillo que sea String url
+  DateTime dateChanged;
+
+  Album(this.name);
+Album.fromFirestore(DocumentSnapshot doc) {
+    id = doc.documentID;
+    name = doc.data['name'];
+    dateChanged = (doc.data['dateChanged'] as Timestamp).toDate(); 
+  }
 
 }
 
@@ -52,3 +61,28 @@ addPhoto(String url, String description, List<String> albums){
 deletePhoto(Photo photo){
    Firestore.instance.document('imgs/${photo.id}').delete();
 }
+
+
+///////////////ALBUMS//////////////
+Stream<List<Album>> albumsSnapshots() {
+  return Firestore.instance
+      .collection('albums')
+      .orderBy('dateChanged')
+      .snapshots()
+      .map((QuerySnapshot query) {
+    final List<DocumentSnapshot> docs = query.documents;
+    return docs.map((doc) => Album.fromFirestore(doc)).toList();
+  });
+}
+
+addAlbum(String name){
+  Firestore.instance.collection('albums').add({
+    'name': name,
+    'dateChanged': Timestamp.fromDate(DateTime.now()),
+  });
+}
+
+deleteAlbum(Album album){
+   Firestore.instance.document('albums/${album.id}').delete();
+}
+

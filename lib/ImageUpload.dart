@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_galery/AlbumList.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -17,6 +18,7 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
   File sampleImage;
   String _myValue;
   String url;
+  List<String> albums;
   final formKey = new GlobalKey<FormState>();
 
   Future getImage() async {
@@ -36,19 +38,22 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
       return false;
     }
   }
-  void uploadStatusImage() async{
-    if(validateAndSave()){
-      final StorageReference postImageRef = FirebaseStorage.instance.ref().child("Post Images");
+
+  void uploadStatusImage() async {
+    if (validateAndSave()) {
+      final StorageReference postImageRef =
+          FirebaseStorage.instance.ref().child("Post Images");
       var timeKey = DateTime.now();
-      final StorageUploadTask uploadTask = postImageRef.child(timeKey.toString() + ".jpg").putFile(sampleImage);
-      var imageUrl =  await (await uploadTask.onComplete).ref.getDownloadURL();
-      url=imageUrl.toString();
+      final StorageUploadTask uploadTask =
+          postImageRef.child(timeKey.toString() + ".jpg").putFile(sampleImage);
+      var imageUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
+      url = imageUrl.toString();
       goToHome();
       saveToDatabase();
     }
   }
 
-  void saveToDatabase(){
+  void saveToDatabase() {
     var dbTimeKey = DateTime.now();
     var formatDate = DateFormat('MMM d, yyyy');
     var formatTime = DateFormat('EEEE, hh:mm aaa');
@@ -56,63 +61,97 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
     String date = formatDate.format(dbTimeKey);
     String time = formatTime.format(dbTimeKey);
 
-   Firestore.instance.collection('imgs').document(dbTimeKey.toString()).setData({
+    Firestore.instance
+        .collection('imgs')
+        .document(dbTimeKey.toString())
+        .setData({
       "url": url,
       "description": _myValue,
       "date": date,
-      "time":time,
-      "albums":null,
+      "time": time,
+      "albums": null,
     });
-
   }
 
   void goToHome() {
     Navigator.pop(context);
+  }
 
+  callAlbums() {
+    Navigator.of(context)
+        .push(
+      MaterialPageRoute(
+        builder: (context) => AlbumListPage(),
+      ),
+    )
+        .then((result) {
+      setState(() {
+        this.albums = result;
+      });
+    });
   }
 
   Widget enableUpload() {
+    final albumsText = <Widget>[];
+    print(albums);
+    if (albums != null) {
+      for (var i = 0; i < this.albums.length; i++) {
+        albumsText.add(new Text(this.albums[i]));
+      }
+    }
     return SingleChildScrollView(
-      child:
-        Container(
-          child: Form(
-            key: formKey,
-            child: Column(children: <Widget>[
-              Image.file(
-                sampleImage,
+      child: Container(
+        child: Form(
+          key: formKey,
+          child: Column(children: <Widget>[
+            Image.file(
+              sampleImage,
+            ),
+            SizedBox(
+              height: 15.0,
+            ),
+            Center(
+              child: Container(
+                width: 300,
+                child: TextFormField(
+                    decoration: new InputDecoration(
+                      labelText: 'Description',
+                    ),
+                    validator: (value) {
+                      return value.isEmpty ? 'Description is required' : null;
+                    },
+                    onSaved: (value) {
+                      _myValue = value;
+                    }),
               ),
-              SizedBox(
-                height: 15.0,
+            ),
+            SizedBox(
+              height: 15.0,
+            ),
+            RaisedButton(
+              padding: EdgeInsets.all(5.0),
+              child: Text('ADD ALBUMS'),
+              onPressed: () => callAlbums(),
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 20.0),
+              height: 20.0,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: albumsText,
               ),
-              Center(
-                child: Container(
-                  width: 300,
-                  child: TextFormField(
-                      decoration: new InputDecoration(
-                        labelText: 'Description',
-                      ),
-                      validator: (value) {
-                        return value.isEmpty ? 'Description is required' : null;
-                      },
-                      onSaved: (value) {
-                        _myValue = value;
-                      }),
-                ),
-              ),
-              SizedBox(
-                height: 15.0,
-              ),
-              //AlbumDropdown(),
-              RaisedButton(
-                child: Text("Upload Image"),
-                elevation: 10.0,
-                textColor: Colors.white,
-                color: Colors.green,
-                onPressed: uploadStatusImage,
-              ),
-            ]),
-          ),
+            ),
+            //AlbumDropdown(),
+            RaisedButton(
+              child: Text("Upload Image"),
+              elevation: 10.0,
+              textColor: Colors.white,
+              color: Colors.green,
+              onPressed: uploadStatusImage,
+            ),
+          ]),
         ),
+      ),
     );
   }
 
@@ -152,7 +191,7 @@ class AlbumDropdown extends StatelessWidget {
               items: docs.map((DocumentSnapshot album) {
                 return new DropdownMenuItem<String>(
                   value: album.documentID,
-                  child:  Text(album['name']),
+                  child: Text(album['name']),
                 );
               }).toList(),
               onChanged: (_) {},
