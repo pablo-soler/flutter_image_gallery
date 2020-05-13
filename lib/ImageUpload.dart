@@ -6,6 +6,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'bd.dart';
 
 class UploadPhotoPage extends StatefulWidget {
   @override
@@ -16,13 +17,13 @@ class UploadPhotoPage extends StatefulWidget {
 
 class _UploadPhotoPageState extends State<UploadPhotoPage> {
   File sampleImage;
-  String _myValue;
-  String url;
-  List<String> albums;
-  final formKey = new GlobalKey<FormState>();
+    Photo photo =Photo.empty();
+
+
+  final formKey =GlobalKey<FormState>();
 
   Future getImage() async {
-    var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery);
+    var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery, maxHeight: 800, maxWidth: 800);
     setState(() {
       sampleImage = tempImage;
     });
@@ -45,9 +46,10 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
           FirebaseStorage.instance.ref().child("Post Images");
       var timeKey = DateTime.now();
       final StorageUploadTask uploadTask =
-          postImageRef.child(timeKey.toString() + ".jpg").putFile(sampleImage);
+          postImageRef.child(timeKey.toString()).putFile(sampleImage);
+      photo.storageId=timeKey.toString();
       var imageUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
-      url = imageUrl.toString();
+       photo.url = imageUrl.toString();
       goToHome();
       saveToDatabase();
     }
@@ -58,19 +60,10 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
     var formatDate = DateFormat('MMM d, yyyy');
     var formatTime = DateFormat('EEEE, hh:mm aaa');
 
-    String date = formatDate.format(dbTimeKey);
-    String time = formatTime.format(dbTimeKey);
+    photo.date = formatDate.format(dbTimeKey);
+    photo.time = formatTime.format(dbTimeKey);
 
-    Firestore.instance
-        .collection('imgs')
-        .document(dbTimeKey.toString())
-        .setData({
-      "url": url,
-      "description": _myValue,
-      "date": date,
-      "time": time,
-      "albums": null,
-    });
+    addPhoto(photo, dbTimeKey.toString());
   }
 
   void goToHome() {
@@ -86,19 +79,13 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
     )
         .then((result) {
       setState(() {
-        this.albums = result;
+        photo.albums = result;
       });
     });
   }
 
   Widget enableUpload() {
     final albumsText = <Widget>[];
-    print(albums);
-    if (albums != null) {
-      for (var i = 0; i < this.albums.length; i++) {
-        albumsText.add(new Text(this.albums[i]));
-      }
-    }
     return SingleChildScrollView(
       child: Container(
         child: Form(
@@ -114,14 +101,14 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
               child: Container(
                 width: 300,
                 child: TextFormField(
-                    decoration: new InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Description',
                     ),
                     validator: (value) {
                       return value.isEmpty ? 'Description is required' : null;
                     },
                     onSaved: (value) {
-                      _myValue = value;
+                      photo.description = value;
                     }),
               ),
             ),

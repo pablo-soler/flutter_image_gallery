@@ -51,8 +51,10 @@ addPhoto(Photo photo, String key) {
     'date': photo.date,
     'time': photo.time,
     "albums": photo.albums,
-    'storageId': photo.storageId,
+    'storageId': photo.storageId
+
   });
+    photo.albums.map((albumReference)=> addAlbumToImage(key, albumReference));
   //aqui se tendría que enviar la referencia de esta imagen al album
 }
 
@@ -87,11 +89,16 @@ deletePhoto(Photo photo) {
 }
 
 deletePhotoById(String id, String storageId) {
-  var imgRef = FirebaseStorage.instance.ref().child("Post Images").child(storageId);
+  FirebaseStorage.instance.ref().child("Post Images").child(storageId).delete();
+  Firestore.instance.document('imgs/$id').delete();
 
-  //https://firebase.google.com/docs/storage/web/delete-files
+}
 
-imgRef.delete();
-Firestore.instance.document('imgs/$id').delete();
+addAlbumToImage(String idPhoto, String idAlbum){
+
+  Firestore.instance.document('imgs/$idPhoto').updateData({
+              //"albums":firebase.firestore.FieldValue.arrayUnion($idAlbum)
+            });
+
   
 }

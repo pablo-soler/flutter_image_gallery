@@ -230,6 +230,8 @@ class PhotoGallery extends StatelessWidget {
           FlatButton(
             child: Text('Accept'),
             onPressed: () {
+              print(id);
+              print(storageId);
               deletePhotoById(id, storageId);
               Navigator.of(context).push(
                     MaterialPageRoute(
