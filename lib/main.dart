@@ -199,8 +199,9 @@ class PhotoGallery extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          print('hola');
-          _showDeleteDialog(galleryItems[pos].documentID, galleryItems[pos].data['storageId']);
+          print(galleryItems[pos].documentID);
+          print(galleryItems[pos].data['storageId']);
+          _showDeleteDialog(galleryItems[pos].documentID, galleryItems[pos].data['storageId'], context);
         },
         child: new Icon(Icons.delete),
         tooltip: 'Delete Image',
@@ -208,19 +209,16 @@ class PhotoGallery extends StatelessWidget {
     );
   }
 
-  Future<void> _showDeleteDialog(String id, String storageId) async {
+  Future<void> _showDeleteDialog(String id, String storageId, context) async {
   return showDialog<void>(
-    context: null,
+    context: context,
     barrierDismissible: false, // user must tap button!
     builder: (BuildContext context) {
       return AlertDialog(
         title: Text('Delete Image'),
         content: SingleChildScrollView(
-          child: ListBody(
-            children: <Widget>[
+          child:
               Text('Would you like to delete this image?'),
-            ],
-          ),
         ),
         actions: <Widget>[
           FlatButton(
@@ -233,6 +231,11 @@ class PhotoGallery extends StatelessWidget {
             child: Text('Accept'),
             onPressed: () {
               deletePhotoById(id, storageId);
+              Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ImageGallery(),
+                    ),
+                  );
             },
           ),
         ],

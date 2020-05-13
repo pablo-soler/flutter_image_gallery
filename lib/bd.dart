@@ -54,6 +54,11 @@ deletePhoto(Photo photo) {
 }
 
 deletePhotoById(String id, String storageId) {
-  Firestore.instance.document('imgs/$id').delete();
-  FirebaseStorage.instance.ref().child("Post Images").child(storageId).delete();
+  var imgRef = FirebaseStorage.instance.ref().child("Post Images").child(storageId);
+
+  //https://firebase.google.com/docs/storage/web/delete-files
+
+imgRef.delete();
+Firestore.instance.document('imgs/$id').delete();
+  
 }
