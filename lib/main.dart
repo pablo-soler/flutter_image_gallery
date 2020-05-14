@@ -5,16 +5,48 @@ import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'ImageUpload.dart';
+import 'package:provider/provider.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(App());
 
-class MyApp extends StatelessWidget {
+class ActualAlbum with ChangeNotifier {
+  String _id = "";
+  String _name = "All photos";
+
+  String get id => _id;
+  String get name => _name;
+
+  actualAlbum(DocumentSnapshot album) {
+    _id = album.documentID;
+    _name = album.data['name'];
+    notifyListeners();
+    print(name);
+  }
+
+  allPhotos() {
+    _id = '';
+    _name = 'All photos';
+    notifyListeners();
+  }
+}
+
+class App extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<ActualAlbum>(
+      create: (_) => ActualAlbum(),
+      child: MainApp(),
+    );
+  }
+}
+
+class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text("Image Gallery"),
+          title: Text(Provider.of<ActualAlbum>(context).name),
         ),
         drawer: LateralMenu(),
         body: ImageGallery(),
@@ -23,6 +55,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+//----------MENU LATERAL ALBUMS -----------------
 class LateralMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -35,7 +68,10 @@ class LateralMenu extends StatelessWidget {
     list.add(
       Container(
         child: InkWell(
-          onTap: () => {},
+          onTap: () => {
+            Provider.of<ActualAlbum>(context, listen: false).allPhotos(),
+            Navigator.pop(context)
+          },
           child: ListTile(
             title: Text("ALL PHOTOS"),
           ),
@@ -56,7 +92,11 @@ class LateralMenu extends StatelessWidget {
           for (var i = 0; i < docs.length; i++) {
             list.add(
               InkWell(
-                onTap: () => {},
+                onTap: () => {
+                  Provider.of<ActualAlbum>(context, listen: false)
+                      .actualAlbum(docs[i]),
+                  Navigator.pop(context)
+                },
                 child: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
@@ -81,9 +121,11 @@ class LateralMenu extends StatelessWidget {
   }
 }
 
+//---------GALERIA GENERAL----------------
 class ImageGallery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final album = (Provider.of<ActualAlbum>(context).id);
     return Scaffold(
       backgroundColor: Colors.black,
       body: StreamBuilder(
@@ -95,6 +137,9 @@ class ImageGallery extends StatelessWidget {
             );
           } else {
             List<DocumentSnapshot> docs = snapshot.data.documents;
+            if (album != ""){
+              docs = docs.where((d) => d.data['albums'] != null && d.data['albums'].contains(album)).toList();
+            }
             return GridView.builder(
               gridDelegate:
                   SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
@@ -129,6 +174,7 @@ class ImageGallery extends StatelessWidget {
   }
 }
 
+//-----PAGINA DE IMAGEN---------------
 class ImagePage extends StatelessWidget {
   final String url;
 
@@ -201,7 +247,8 @@ class PhotoGallery extends StatelessWidget {
         onPressed: () {
           print(galleryItems[pos].documentID);
           print(galleryItems[pos].data['storageId']);
-          _showDeleteDialog(galleryItems[pos].documentID, galleryItems[pos].data['storageId'], context);
+          _showDeleteDialog(galleryItems[pos].documentID,
+              galleryItems[pos].data['storageId'], context);
         },
         child: new Icon(Icons.delete),
         tooltip: 'Delete Image',
@@ -210,39 +257,36 @@ class PhotoGallery extends StatelessWidget {
   }
 
   Future<void> _showDeleteDialog(String id, String storageId, context) async {
-  return showDialog<void>(
-    context: context,
-    barrierDismissible: false, // user must tap button!
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Delete Image'),
-        content: SingleChildScrollView(
-          child:
-              Text('Would you like to delete this image?'),
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('Cancel'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Image'),
+          content: SingleChildScrollView(
+            child: Text('Would you like to delete this image?'),
           ),
-          FlatButton(
-            child: Text('Accept'),
-            onPressed: () {
-              print(id);
-              print(storageId);
-              deletePhotoById(id, storageId);
-              Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ImageGallery(),
-                    ),
-                  );
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('Accept'),
+              onPressed: () {
+                deletePhotoById(id, storageId);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ImageGallery(),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

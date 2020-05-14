@@ -1,64 +1,53 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import "bd.dart";
 import 'package:flutter/material.dart';
 
-
-
 class AlbumListPage extends StatelessWidget {
- 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Choose...')),
-      body: StreamBuilder<List<Album>>(
-        stream: albumsSnapshots(),
-        builder: (context, AsyncSnapshot<List<Album>> snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('ERROR: ${snapshot.error.toString()}'));
-          }
-          switch (snapshot.connectionState) {
-            case ConnectionState.waiting:
-              return Center(child: CircularProgressIndicator());
-            case ConnectionState.active:
-              return AlbumList(snapshot.data);
-            case ConnectionState.done:
-              return Center(child: Text("done??"));
-            case ConnectionState.none:
-            default:
-              return Center(child: Text("no hi ha stream??"));
+      body: StreamBuilder(
+        stream: Firestore.instance
+            .collection('albums')
+            .orderBy('dateChanged')
+            .snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            List<DocumentSnapshot> docs = snapshot.data.documents;
+            return AlbumList(docs);
           }
         },
       ),
     );
   }
-
-  
 }
 
-
-
-class AlbumList extends StatefulWidget{
-  final List<Album> albums;
+class AlbumList extends StatefulWidget {
+  final List<DocumentSnapshot> albums;
   AlbumList(this.albums);
-@override
+  @override
   State<StatefulWidget> createState() => _AlbumListState(albums);
 }
-class _AlbumListState extends State<AlbumList> {
-final List<Album> albums;
-_AlbumListState(this.albums);
-List<bool> albumsIndex;
 
-void initState(){
-  super.initState();
-albumsIndex = new List();
-for (var i = 0; i < albums.length; i++) {
+class _AlbumListState extends State<AlbumList> {
+  final List<DocumentSnapshot> albums;
+  _AlbumListState(this.albums);
+  List<bool> albumsIndex;
+
+  void initState() {
+    super.initState();
+    albumsIndex = new List();
+    for (var i = 0; i < albums.length; i++) {
       albumsIndex.add(false);
     }
-}    
+  }
 
-@override
+  @override
   Widget build(BuildContext context) {
-
     print(albumsIndex);
     return Column(
       children: <Widget>[
@@ -72,7 +61,7 @@ for (var i = 0; i < albums.length; i++) {
                     albumsIndex[index] = !albumsIndex[index];
                   });
                 },
-                title: Text(albums[index].name),
+                title: Text(albums[index].data['name']),
                 leading: Checkbox(
                   value: albumsIndex[index],
                   onChanged: (_) => setState(() {
@@ -87,9 +76,9 @@ for (var i = 0; i < albums.length; i++) {
           child: Text('Save'),
           onPressed: () {
             List<String> albumsRefenrece = new List();
-            for (var i = 0; i < albums.length; i++) { 
+            for (var i = 0; i < albums.length; i++) {
               if (albumsIndex[i]) {
-                albumsRefenrece.add('albums/${albums[i].id}');
+                albumsRefenrece.add('albums/${albums[i].data['id']}');
               }
             }
             Navigator.of(context).pop(albumsRefenrece);
@@ -97,7 +86,5 @@ for (var i = 0; i < albums.length; i++) {
         ),
       ],
     );
-  
   }
 }
-

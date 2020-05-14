@@ -33,16 +33,17 @@ class Photo {
   }
 }
 
-Stream<List<Photo>> photoSnapshots() {
-  return Firestore.instance
-      .collection('imgs')
-      .orderBy('date')
-      .snapshots()
-      .map((QuerySnapshot query) {
-    final List<DocumentSnapshot> docs = query.documents;
-    return docs.map((doc) => Photo.fromFirestore(doc)).toList();
-  });
-}
+
+// Stream<List<Photo>> photoSnapshots() {
+//   return Firestore.instance
+//       .collection('imgs')
+//       .orderBy('date')
+//       .snapshots()
+//       .map((QuerySnapshot query) {
+//     final List<DocumentSnapshot> docs = query.documents;
+//     return docs.map((doc) => Photo.fromFirestore(doc)).toList();
+//   });
+// }
 
 addPhoto(Photo photo, String key) {
   Firestore.instance.collection('imgs').document(key).setData({
@@ -58,19 +59,19 @@ addPhoto(Photo photo, String key) {
   //aqui se tendría que enviar la referencia de esta imagen al album
 }
 
+deletePhoto(Photo photo) {
+  Firestore.instance.document('imgs/${photo.id}').delete();
+  FirebaseStorage.instance.ref().child("Post Images").child(photo.storageId).delete();
+}
+
+deletePhotoById(String id, String storageId) {
+  FirebaseStorage.instance.ref().child("Post Images").child(storageId).delete();
+  Firestore.instance.document('imgs/$id').delete();
+
+}
 
 
 ///////////////ALBUMS//////////////
-Stream<List<Album>> albumsSnapshots() {
-  return Firestore.instance
-      .collection('albums')
-      .orderBy('dateChanged')
-      .snapshots()
-      .map((QuerySnapshot query) {
-    final List<DocumentSnapshot> docs = query.documents;
-    return docs.map((doc) => Album.fromFirestore(doc)).toList();
-  });
-}
 
 addAlbum(String name){
   Firestore.instance.collection('albums').add({
@@ -83,16 +84,6 @@ deleteAlbum(Album album){
    Firestore.instance.document('albums/${album.id}').delete();
 }
 
-deletePhoto(Photo photo) {
-  Firestore.instance.document('imgs/${photo.id}').delete();
-  FirebaseStorage.instance.ref().child("Post Images").child(photo.storageId).delete();
-}
-
-deletePhotoById(String id, String storageId) {
-  FirebaseStorage.instance.ref().child("Post Images").child(storageId).delete();
-  Firestore.instance.document('imgs/$id').delete();
-
-}
 
 addAlbumToImage(String idPhoto, String idAlbum){
 
