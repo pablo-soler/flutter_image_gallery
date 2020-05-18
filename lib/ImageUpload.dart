@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_galery/AlbumList.dart';
-import 'package:intl/intl.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:image_galery/AlbumList.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+
 import 'bd.dart';
 
 class UploadPhotoPage extends StatefulWidget {
@@ -17,13 +18,13 @@ class UploadPhotoPage extends StatefulWidget {
 
 class _UploadPhotoPageState extends State<UploadPhotoPage> {
   File sampleImage;
-    Photo photo =Photo.empty();
+  Photo photo = Photo.empty();
 
-
-  final formKey =GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
 
   Future getImage() async {
-    var tempImage = await ImagePicker.pickImage(source: ImageSource.gallery, maxHeight: 800, maxWidth: 800);
+    var tempImage = await ImagePicker.pickImage(
+        source: ImageSource.gallery, maxHeight: 800, maxWidth: 800);
     setState(() {
       sampleImage = tempImage;
     });
@@ -47,9 +48,9 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
       var timeKey = DateTime.now();
       final StorageUploadTask uploadTask =
           postImageRef.child(timeKey.toString()).putFile(sampleImage);
-      photo.storageId=timeKey.toString();
+      photo.storageId = timeKey.toString();
       var imageUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
-       photo.url = imageUrl.toString();
+      photo.url = imageUrl.toString();
       goToHome();
       saveToDatabase();
     }

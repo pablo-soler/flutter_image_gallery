@@ -68,9 +68,9 @@ class LateralMenu extends StatelessWidget {
     list.add(
       Container(
         child: InkWell(
-          onTap: () => {
-            Provider.of<ActualAlbum>(context, listen: false).allPhotos(),
-            Navigator.pop(context)
+          onTap: () {
+            Provider.of<ActualAlbum>(context, listen: false).allPhotos();
+            Navigator.pop(context);
           },
           child: ListTile(
             title: Text("ALL PHOTOS"),
@@ -92,10 +92,10 @@ class LateralMenu extends StatelessWidget {
           for (var i = 0; i < docs.length; i++) {
             list.add(
               InkWell(
-                onTap: () => {
+                onTap: () {
                   Provider.of<ActualAlbum>(context, listen: false)
-                      .actualAlbum(docs[i]),
-                  Navigator.pop(context)
+                      .actualAlbum(docs[i]);
+                  Navigator.pop(context);
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -137,8 +137,12 @@ class ImageGallery extends StatelessWidget {
             );
           } else {
             List<DocumentSnapshot> docs = snapshot.data.documents;
-            if (album != ""){
-              docs = docs.where((d) => d.data['albums'] != null && d.data['albums'].contains(album)).toList();
+            if (album != "") {
+              docs = docs
+                  .where((d) =>
+                      d.data['albums'] != null &&
+                      d.data['albums'].contains(album))
+                  .toList();
             }
             return GridView.builder(
               gridDelegate:
