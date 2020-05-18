@@ -75,13 +75,19 @@ class _AlbumListState extends State<AlbumList> {
         RaisedButton(
           child: Text('Save'),
           onPressed: () {
-            List<String> albumsRefenrece = new List();
+            List<String> albumsName = new List();
+            List<String> albumsId = new List();
+            List<List> albumsReference =  new List(2); 
             for (var i = 0; i < albums.length; i++) {
               if (albumsIndex[i]) {
-                albumsRefenrece.add('albums/${albums[i].data['id']}');
+                albumsName.add(albums[i].data['name']);
+                albumsId.add(albums[i].data['id']);
               }
             }
-            Navigator.of(context).pop(albumsRefenrece);
+            
+            albumsReference[0] = albumsId;
+            albumsReference[1] = albumsName;
+            Navigator.of(context).pop(albumsReference);
           },
         ),
       ],

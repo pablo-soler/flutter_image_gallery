@@ -19,6 +19,7 @@ class UploadPhotoPage extends StatefulWidget {
 class _UploadPhotoPageState extends State<UploadPhotoPage> {
   File sampleImage;
   Photo photo = Photo.empty();
+  List<String> albumsName = new List();
 
   final formKey = GlobalKey<FormState>();
 
@@ -79,14 +80,17 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
       ),
     )
         .then((result) {
-      setState(() {
-        photo.albums = result;
-      });
+      if (result[0] != null) {
+        setState(() {
+          photo.albums = result[0];
+          albumsName = result[1];
+          print(albumsName);
+        });
+      }
     });
   }
 
   Widget enableUpload() {
-    final albumsText = <Widget>[];
     return SingleChildScrollView(
       child: Container(
         child: Form(
@@ -122,14 +126,20 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
               onPressed: () => callAlbums(),
             ),
             Container(
-              margin: EdgeInsets.symmetric(vertical: 20.0),
-              height: 10.0,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: albumsText,
+              height: 30.0,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                    itemCount: albumsName.length,
+                    itemBuilder: (BuildContext ctxt, int index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: new Text(albumsName[index]),
+                      );
+                    }),
               ),
             ),
-            //AlbumDropdown(),
             RaisedButton(
               child: Text("Upload Image"),
               elevation: 10.0,
@@ -156,36 +166,6 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
         onPressed: getImage,
         tooltip: 'Add image',
         child: Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-class AlbumDropdown extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: StreamBuilder(
-        stream: Firestore.instance.collection('albums').snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else {
-            List<DocumentSnapshot> docs = snapshot.data.documents;
-            return new DropdownButton<String>(
-              items: docs.map((DocumentSnapshot album) {
-                return new DropdownMenuItem<String>(
-                  value: album.documentID,
-                  child: Text(album['name']),
-                );
-              }).toList(),
-              onChanged: (_) {},
-            );
-          }
-        },
       ),
     );
   }

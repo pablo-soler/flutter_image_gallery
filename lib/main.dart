@@ -12,6 +12,7 @@ void main() => runApp(App());
 class ActualAlbum with ChangeNotifier {
   String _id = "";
   String _name = "All photos";
+  List<String> urlBg = List();
 
   String get id => _id;
   String get name => _name;
@@ -22,6 +23,7 @@ class ActualAlbum with ChangeNotifier {
     notifyListeners();
     print(name);
   }
+  
 
   allPhotos() {
     _id = '';
@@ -101,7 +103,7 @@ class LateralMenu extends StatelessWidget {
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: NetworkImage(
-                          "https://homepages.cae.wisc.edu/~ece533/images/cat.png"),
+                          docs[i].data['bg'] != null ? docs[i].data['bg'] : "" ),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -137,6 +139,7 @@ class ImageGallery extends StatelessWidget {
             );
           } else {
             List<DocumentSnapshot> docs = snapshot.data.documents;
+
             if (album != "") {
               docs = docs
                   .where((d) =>
@@ -201,7 +204,7 @@ class ImagePage extends StatelessWidget {
     );
   }
 }
-
+ 
 class PhotoGallery extends StatelessWidget {
   final galleryItems;
   final int initialPos;

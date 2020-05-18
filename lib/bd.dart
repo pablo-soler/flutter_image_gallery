@@ -4,7 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 class Album {
   String id;
   String name;
-  String bg = ""; //He usado reference de la img para definirlo pero si siempre se usará url para definir una imagen, será mas sencillo que sea String url
+  String bg = "";
   DateTime dateChanged;
 
   Album(this.name);
@@ -55,7 +55,7 @@ addPhoto(Photo photo, String key) {
     'storageId': photo.storageId
 
   });
-    photo.albums.map((albumReference)=> addAlbumToImage(key, albumReference));
+    photo.albums.map((albumReference)=> addAlbumToImage(key, albumReference, photo.url));
   //aqui se tendría que enviar la referencia de esta imagen al album
 }
 
@@ -85,11 +85,13 @@ deleteAlbum(Album album){
 }
 
 
-addAlbumToImage(String idPhoto, String idAlbum){
 
+
+addAlbumToImage(String idPhoto, String idAlbum, String urlPhoto){
+  //HE INCLUIDO ESTO AQUI PARA QUE CUANDO SE SUBA UNA IMAGEN SE ACTUALIZE EL VALOR bg DEL ALBUM
+  //ENTIENDO QUE AQUÍ SE ENTRA AL SUBIR LA IMAGEN
+  Firestore.instance.document('albums/$idAlbum').updateData({'bg': urlPhoto, 'dateChanged': Timestamp.fromDate(DateTime.now())});
   Firestore.instance.document('imgs/$idPhoto').updateData({
               //"albums":firebase.firestore.FieldValue.arrayUnion($idAlbum)
             });
-
-  
 }
