@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class AlbumListPage extends StatelessWidget {
+  final picAlbums;
+  AlbumListPage(this.picAlbums);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +21,7 @@ class AlbumListPage extends StatelessWidget {
             );
           } else {
             List<DocumentSnapshot> docs = snapshot.data.documents;
-            return AlbumList(docs);
+            return AlbumList(docs, picAlbums);
           }
         },
       ),
@@ -28,22 +31,25 @@ class AlbumListPage extends StatelessWidget {
 
 class AlbumList extends StatefulWidget {
   final List<DocumentSnapshot> albums;
-  AlbumList(this.albums);
+  final picAlbums;
+  AlbumList(this.albums, this.picAlbums);
   @override
-  State<StatefulWidget> createState() => _AlbumListState(albums);
+  State<StatefulWidget> createState() => _AlbumListState(albums, picAlbums);
 }
 
 class _AlbumListState extends State<AlbumList> {
   final List<DocumentSnapshot> albums;
-  _AlbumListState(this.albums);
+  final picAlbums;
+  _AlbumListState(this.albums, this.picAlbums);
   List<bool> albumsIndex;
 
   void initState() {
     super.initState();
     albumsIndex = new List();
-    for (var i = 0; i < albums.length; i++) {
-      albumsIndex.add(false);
-    }
+    albums.forEach((album) =>
+        picAlbums != null && picAlbums.contains(album.documentID)
+            ? albumsIndex.add(true)
+            : albumsIndex.add(false));
   }
 
   @override
@@ -77,14 +83,14 @@ class _AlbumListState extends State<AlbumList> {
           onPressed: () {
             List<String> albumsName = new List();
             List<String> albumsId = new List();
-            List<List> albumsReference =  new List(2); 
+            List<List> albumsReference = new List(2);
             for (var i = 0; i < albums.length; i++) {
               if (albumsIndex[i]) {
                 albumsName.add(albums[i].data['name']);
                 albumsId.add(albums[i].documentID);
               }
             }
-            
+
             albumsReference[0] = albumsId;
             albumsReference[1] = albumsName;
             Navigator.of(context).pop(albumsReference);

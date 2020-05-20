@@ -6,6 +6,7 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'ImageUpload.dart';
 import 'package:provider/provider.dart';
+import 'package:image_galery/AlbumList.dart';
 
 void main() => runApp(App());
 
@@ -103,8 +104,9 @@ class LateralMenu extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(
-                          docs[i].data['bg'] != null ? docs[i].data['bg'] : ""),
+                      image: NetworkImage(docs[i].data['bg'] != ""
+                          ? docs[i].data['bg']
+                          : "https://748073e22e8db794416a-cc51ef6b37841580002827d4d94d19b6.ssl.cf3.rackcdn.com/not-found.png"),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -157,7 +159,7 @@ class LateralMenu extends StatelessWidget {
               child: Text('Accept'),
               onPressed: () {
                 if (myController.value.text.isEmpty) {
-                  myController.text="Unnamed Album";
+                  myController.text = "Unnamed Album";
                 } else {
                   addAlbum(myController.value.text);
                   Navigator.of(context).push(
@@ -240,11 +242,38 @@ class PhotoGallery extends StatelessWidget {
   final _pageController;
   PhotoGallery(this.galleryItems, this._pageController);
 
+  callAlbums(context, photoId, url, albums) {
+    albums.forEach((album)=>print(album));
+    Navigator.of(context)
+        .push(
+      MaterialPageRoute(
+        builder: (context) => AlbumListPage(albums),
+      ),
+    )
+        .then((result) {
+      if (result[0] != null) {
+            addAlbumToImage(photoId, result[0], url);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.folder),
+            onPressed: () {
+              callAlbums(
+                  context,
+                  galleryItems[_pageController.page.round()].documentID,
+                  galleryItems[_pageController.page.round()].data['url'],
+                  galleryItems[_pageController.page.round()].data['albums']);
+            },
+          ),
+        ],
       ),
       backgroundColor: Colors.black,
       body: Container(
