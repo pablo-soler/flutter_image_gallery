@@ -23,7 +23,6 @@ class ActualAlbum with ChangeNotifier {
     notifyListeners();
     print(name);
   }
-  
 
   allPhotos() {
     _id = '';
@@ -65,7 +64,9 @@ class LateralMenu extends StatelessWidget {
     list.add(FlatButton(
       child: Text("NEW ALBUM"),
       color: Colors.amberAccent,
-      onPressed: () {},
+      onPressed: () {
+        _showAddAlbumDialog(context);
+      },
     ));
     list.add(
       Container(
@@ -103,7 +104,7 @@ class LateralMenu extends StatelessWidget {
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: NetworkImage(
-                          docs[i].data['bg'] != null ? docs[i].data['bg'] : "" ),
+                          docs[i].data['bg'] != null ? docs[i].data['bg'] : ""),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -120,6 +121,57 @@ class LateralMenu extends StatelessWidget {
         }
       },
     ));
+  }
+
+  Future<void> _showAddAlbumDialog(context) async {
+    TextEditingController myController = TextEditingController();
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('New Album'),
+          content: SingleChildScrollView(
+            child: Center(
+              child: Container(
+                  width: 300,
+                  child: TextFormField(
+                    controller: myController,
+                    decoration: InputDecoration(
+                      labelText: 'Album name',
+                    ),
+                    validator: (value) {
+                      return value.isEmpty ? 'Album name is required' : null;
+                    },
+                  )),
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('Accept'),
+              onPressed: () {
+                if (myController.value.text.isEmpty) {
+                  myController.text="Unnamed Album";
+                } else {
+                  addAlbum(myController.value.text);
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => App(),
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -152,7 +204,8 @@ class ImageGallery extends StatelessWidget {
                   SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
               itemBuilder: (context, index) => GestureDetector(
                 onTap: () {
-                  PageController _pageController = PageController(initialPage: index);
+                  PageController _pageController =
+                      PageController(initialPage: index);
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => PhotoGallery(docs, _pageController),
@@ -182,35 +235,11 @@ class ImageGallery extends StatelessWidget {
   }
 }
 
-//-----PAGINA DE IMAGEN---------------
-class ImagePage extends StatelessWidget {
-  final String url;
-
-  ImagePage(this.url);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-      ),
-      backgroundColor: Colors.black,
-      body: Center(
-        child: PhotoView(
-          imageProvider: NetworkImage(
-            url,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class PhotoGallery extends StatelessWidget {
   final galleryItems;
   final _pageController;
   PhotoGallery(this.galleryItems, this._pageController);
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -222,7 +251,6 @@ class PhotoGallery extends StatelessWidget {
         child: PhotoViewGallery.builder(
           scrollPhysics: const BouncingScrollPhysics(),
           builder: (BuildContext context, int index) {
-            
             return PhotoViewGalleryPageOptions(
               imageProvider: NetworkImage(
                 galleryItems[index].data['url'],
@@ -247,10 +275,10 @@ class PhotoGallery extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          print(galleryItems[_pageController.page.round()].documentID);
-          print(galleryItems[_pageController.page.round()].data['storageId']);
-          _showDeleteDialog(galleryItems[_pageController.page.round()].documentID,
-              galleryItems[_pageController.page.round()].data['storageId'], context);
+          _showDeleteDialog(
+              galleryItems[_pageController.page.round()].documentID,
+              galleryItems[_pageController.page.round()].data['storageId'],
+              context);
         },
         child: new Icon(Icons.delete),
         tooltip: 'Delete Image',
