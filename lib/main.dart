@@ -152,9 +152,10 @@ class ImageGallery extends StatelessWidget {
                   SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
               itemBuilder: (context, index) => GestureDetector(
                 onTap: () {
+                  PageController _pageController = PageController(initialPage: index);
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => PhotoGallery(docs, index),
+                      builder: (context) => PhotoGallery(docs, _pageController),
                     ),
                   );
                 },
@@ -204,14 +205,12 @@ class ImagePage extends StatelessWidget {
     );
   }
 }
- 
+
 class PhotoGallery extends StatelessWidget {
   final galleryItems;
-  final int initialPos;
-  int pos;
-  bool first = true;
-  PhotoGallery(this.galleryItems, this.initialPos);
-
+  final _pageController;
+  PhotoGallery(this.galleryItems, this._pageController);
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -223,12 +222,7 @@ class PhotoGallery extends StatelessWidget {
         child: PhotoViewGallery.builder(
           scrollPhysics: const BouncingScrollPhysics(),
           builder: (BuildContext context, int index) {
-            if (first) {
-              index = initialPos;
-              first = false;
-            }
-            pos = index;
-
+            
             return PhotoViewGalleryPageOptions(
               imageProvider: NetworkImage(
                 galleryItems[index].data['url'],
@@ -237,6 +231,7 @@ class PhotoGallery extends StatelessWidget {
             );
           },
           itemCount: galleryItems.length,
+          pageController: _pageController,
           loadingBuilder: (context, event) => Center(
             child: Container(
               width: 20.0,
@@ -252,10 +247,10 @@ class PhotoGallery extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          print(galleryItems[pos].documentID);
-          print(galleryItems[pos].data['storageId']);
-          _showDeleteDialog(galleryItems[pos].documentID,
-              galleryItems[pos].data['storageId'], context);
+          print(galleryItems[_pageController.page.round()].documentID);
+          print(galleryItems[_pageController.page.round()].data['storageId']);
+          _showDeleteDialog(galleryItems[_pageController.page.round()].documentID,
+              galleryItems[_pageController.page.round()].data['storageId'], context);
         },
         child: new Icon(Icons.delete),
         tooltip: 'Delete Image',

@@ -55,7 +55,7 @@ addPhoto(Photo photo, String key) {
     'storageId': photo.storageId
 
   });
-    photo.albums.map((albumReference)=> addAlbumToImage(key, albumReference, photo.url));
+    photo.albums.forEach((albumReference)=> addAlbumToImage(key, albumReference, photo.url));
   //aqui se tendría que enviar la referencia de esta imagen al album
 }
 
@@ -90,6 +90,7 @@ deleteAlbum(Album album){
 addAlbumToImage(String idPhoto, String idAlbum, String urlPhoto){
   //HE INCLUIDO ESTO AQUI PARA QUE CUANDO SE SUBA UNA IMAGEN SE ACTUALIZE EL VALOR bg DEL ALBUM
   //ENTIENDO QUE AQUÍ SE ENTRA AL SUBIR LA IMAGEN
+  print(idPhoto +" " +idAlbum);
   Firestore.instance.document('albums/$idAlbum').updateData({'bg': urlPhoto, 'dateChanged': Timestamp.fromDate(DateTime.now())});
   Firestore.instance.collection('imgs').document(idPhoto).updateData({
               "albums":FieldValue.arrayUnion([idAlbum])
