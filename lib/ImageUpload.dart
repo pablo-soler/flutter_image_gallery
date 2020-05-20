@@ -85,6 +85,7 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
           photo.albums = result[0];
           albumsName = result[1];
           print(albumsName);
+          print(photo.albums);
         });
       }
     });

@@ -51,7 +51,7 @@ addPhoto(Photo photo, String key) {
     'description': photo.description,
     'date': photo.date,
     'time': photo.time,
-    "albums": photo.albums,
+    "albums": [],
     'storageId': photo.storageId
 
   });
@@ -91,7 +91,7 @@ addAlbumToImage(String idPhoto, String idAlbum, String urlPhoto){
   //HE INCLUIDO ESTO AQUI PARA QUE CUANDO SE SUBA UNA IMAGEN SE ACTUALIZE EL VALOR bg DEL ALBUM
   //ENTIENDO QUE AQUÍ SE ENTRA AL SUBIR LA IMAGEN
   Firestore.instance.document('albums/$idAlbum').updateData({'bg': urlPhoto, 'dateChanged': Timestamp.fromDate(DateTime.now())});
-  Firestore.instance.document('imgs/$idPhoto').updateData({
-              //"albums":firebase.firestore.FieldValue.arrayUnion($idAlbum)
+  Firestore.instance.collection('imgs').document(idPhoto).updateData({
+              "albums":FieldValue.arrayUnion([idAlbum])
             });
 }
