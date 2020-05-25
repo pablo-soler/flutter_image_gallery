@@ -96,7 +96,7 @@ class _AlbumListState extends State<AlbumList> {
                 for (var i = 0; i < albums.length; i++) {
                   if (albumsIndex[i]) {
                     albumsName.add(albums[i].data['name']);
-                    albumsId.add(albums[i].data['id']);
+                    albumsId.add(albums[i].documentID);
                   }
                 }
 
