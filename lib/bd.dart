@@ -85,8 +85,7 @@ deleteAlbum(String albumId) {
 }
 
 addAlbumToImage(String idPhoto, albums, String urlPhoto) {
-  //HE INCLUIDO ESTO AQUI PARA QUE CUANDO SE SUBA UNA IMAGEN SE ACTUALIZE EL VALOR bg DEL ALBUM
-  //ENTIENDO QUE AQUÍ SE ENTRA AL SUBIR LA IMAGEN
+
   albums.forEach((album) => {
         Firestore.instance.document('albums/$album').updateData({
           'bg': urlPhoto,

@@ -80,7 +80,6 @@ class _AlbumListState extends State<AlbumList> {
             },
           ),
         ),
-<<<<<<< HEAD
         Padding(
           padding: const EdgeInsets.all(20.0),
           child: Container(
@@ -117,25 +116,6 @@ class _AlbumListState extends State<AlbumList> {
               ),
             ),
           ),
-=======
-        RaisedButton(
-          child: Text('Save'),
-          onPressed: () {
-            List<String> albumsName = new List();
-            List<String> albumsId = new List();
-            List<List> albumsReference = new List(2);
-            for (var i = 0; i < albums.length; i++) {
-              if (albumsIndex[i]) {
-                albumsName.add(albums[i].data['name']);
-                albumsId.add(albums[i].documentID);
-              }
-            }
-
-            albumsReference[0] = albumsId;
-            albumsReference[1] = albumsName;
-            Navigator.of(context).pop(albumsReference);
-          },
->>>>>>> cc8adda8dd78e60c0ca5271405241da92901df7b
         ),
       ],
     );

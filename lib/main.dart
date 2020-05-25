@@ -6,7 +6,6 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'ImageUpload.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_galery/AlbumList.dart';
 
 void main() => runApp(App());
@@ -76,13 +75,6 @@ class LateralMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> list = <Widget>[];
-    list.add(FlatButton(
-      child: Text("NEW ALBUM"),
-      color: Colors.amberAccent,
-      onPressed: () {
-        _showAddAlbumDialog(context);
-      },
-    ));
     list.add(
       Container(
         height: 80,
@@ -129,6 +121,9 @@ class LateralMenu extends StatelessWidget {
                         Provider.of<ActualAlbum>(context, listen: false)
                             .actualAlbum(docs[i]);
                         Navigator.pop(context);
+                      },
+                      onLongPress: () {
+                        _showDeleteDialog(docs[i].documentID, context);
                       },
                       child: Container(
                         height: 100,
@@ -182,7 +177,9 @@ class LateralMenu extends StatelessWidget {
                   child: Container(
                     height: 50,
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        _showAddAlbumDialog(context);
+                      },
                       child: Center(
                         child: Text(
                           "ADD NEW ALBUM",
@@ -204,91 +201,91 @@ class LateralMenu extends StatelessWidget {
             }
           }),
     );
+  }
 
-    Future<void> _showDeleteDialog(String id, context) async {
-      return showDialog<void>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Delete Album'),
-            content: SingleChildScrollView(
-              child: Text('Would you like to delete this album?'),
+  Future<void> _showDeleteDialog(String id, context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Album'),
+          content: SingleChildScrollView(
+            child: Text('Would you like to delete this album?'),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              FlatButton(
-                child: Text('Accept'),
-                onPressed: () {
-                  deleteAlbum(id);
+            FlatButton(
+              child: Text('Accept'),
+              onPressed: () {
+                deleteAlbum(id);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => App(),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showAddAlbumDialog(context) async {
+    TextEditingController myController = TextEditingController();
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('New Album'),
+          content: SingleChildScrollView(
+            child: Center(
+              child: Container(
+                  width: 300,
+                  child: TextFormField(
+                    controller: myController,
+                    decoration: InputDecoration(
+                      labelText: 'Album name',
+                    ),
+                    validator: (value) {
+                      return value.isEmpty ? 'Album name is required' : null;
+                    },
+                  )),
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('Accept'),
+              onPressed: () {
+                if (myController.value.text.isEmpty) {
+                  myController.text = "Unnamed Album";
+                } else {
+                  addAlbum(myController.value.text);
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => App(),
                     ),
                   );
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-
-    Future<void> _showAddAlbumDialog(context) async {
-      TextEditingController myController = TextEditingController();
-      return showDialog<void>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('New Album'),
-            content: SingleChildScrollView(
-              child: Center(
-                child: Container(
-                    width: 300,
-                    child: TextFormField(
-                      controller: myController,
-                      decoration: InputDecoration(
-                        labelText: 'Album name',
-                      ),
-                      validator: (value) {
-                        return value.isEmpty ? 'Album name is required' : null;
-                      },
-                    )),
-              ),
+                }
+              },
             ),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              FlatButton(
-                child: Text('Accept'),
-                onPressed: () {
-                  if (myController.value.text.isEmpty) {
-                    myController.text = "Unnamed Album";
-                  } else {
-                    addAlbum(myController.value.text);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => App(),
-                      ),
-                    );
-                  }
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
+          ],
+        );
+      },
+    );
   }
 }
 
