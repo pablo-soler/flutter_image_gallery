@@ -255,7 +255,8 @@ class ImageGallery extends StatelessWidget {
                   },
                   child: FadeInImage(
                     image: CacheImage(docs[index].data['url']),
-                    placeholder: CacheImage("https://748073e22e8db794416a-cc51ef6b37841580002827d4d94d19b6.ssl.cf3.rackcdn.com/not-found.png"),
+                    placeholder: CacheImage(
+                        "https://748073e22e8db794416a-cc51ef6b37841580002827d4d94d19b6.ssl.cf3.rackcdn.com/not-found.png"),
                   )),
               itemCount: docs.length,
             );
@@ -291,6 +292,11 @@ class PhotoGallery extends StatelessWidget {
         .then((result) {
       if (result[0] != null) {
         addAlbumToImage(photoId, result[0], url);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => App(),
+          ),
+        );
       }
     });
   }
