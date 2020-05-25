@@ -1,3 +1,4 @@
+import 'package:cache_image/cache_image.dart';
 import 'package:image_galery/bd.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -101,13 +102,15 @@ class LateralMenu extends StatelessWidget {
                       .actualAlbum(docs[i]);
                   Navigator.pop(context);
                 },
-                onLongPress: (){_showDeleteDialog(docs[i].documentID, context);},
+                onLongPress: () {
+                  _showDeleteDialog(docs[i].documentID, context);
+                },
                 child: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(docs[i].data['bg'] != ""
+                      image: CacheImage(docs[i].data['bg'] != ""
                           ? docs[i].data['bg']
-                          : "https://748073e22e8db794416a-cc51ef6b37841580002827d4d94d19b6.ssl.cf3.rackcdn.com/not-found.png"),
+                          : CacheImage("https://748073e22e8db794416a-cc51ef6b37841580002827d4d94d19b6.ssl.cf3.rackcdn.com/not-found.png")),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -125,7 +128,8 @@ class LateralMenu extends StatelessWidget {
       },
     ));
   }
-   Future<void> _showDeleteDialog(String id, context) async {
+
+  Future<void> _showDeleteDialog(String id, context) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -157,8 +161,8 @@ class LateralMenu extends StatelessWidget {
         );
       },
     );
-   }
-    
+  }
+
   Future<void> _showAddAlbumDialog(context) async {
     TextEditingController myController = TextEditingController();
     return showDialog<void>(
@@ -239,20 +243,20 @@ class ImageGallery extends StatelessWidget {
               gridDelegate:
                   SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
               itemBuilder: (context, index) => GestureDetector(
-                onTap: () {
-                  PageController _pageController =
-                      PageController(initialPage: index);
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => PhotoGallery(docs, _pageController),
-                    ),
-                  );
-                },
-                child: FadeInImage.memoryNetwork(
-                  image: docs[index].data['url'],
-                  placeholder: kTransparentImage,
-                ),
-              ),
+                  onTap: () {
+                    PageController _pageController =
+                        PageController(initialPage: index);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            PhotoGallery(docs, _pageController),
+                      ),
+                    );
+                  },
+                  child: FadeInImage(
+                    image: CacheImage(docs[index].data['url']),
+                    placeholder: CacheImage("https://748073e22e8db794416a-cc51ef6b37841580002827d4d94d19b6.ssl.cf3.rackcdn.com/not-found.png"),
+                  )),
               itemCount: docs.length,
             );
           }
@@ -277,7 +281,7 @@ class PhotoGallery extends StatelessWidget {
   PhotoGallery(this.galleryItems, this._pageController);
 
   callAlbums(context, photoId, url, albums) {
-    albums.forEach((album)=>print(album));
+    albums.forEach((album) => print(album));
     Navigator.of(context)
         .push(
       MaterialPageRoute(
@@ -286,7 +290,7 @@ class PhotoGallery extends StatelessWidget {
     )
         .then((result) {
       if (result[0] != null) {
-            addAlbumToImage(photoId, result[0], url);
+        addAlbumToImage(photoId, result[0], url);
       }
     });
   }
@@ -372,7 +376,7 @@ class PhotoGallery extends StatelessWidget {
                 deletePhotoById(id, storageId);
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) =>  App(),
+                    builder: (context) => App(),
                   ),
                 );
               },
