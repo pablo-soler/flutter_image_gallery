@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_galery/AlbumList.dart';
@@ -76,7 +74,7 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
     Navigator.of(context)
         .push(
       MaterialPageRoute(
-        builder: (context) => AlbumListPage(),
+        builder: (context) => AlbumListPage([]),
       ),
     )
         .then((result) {
@@ -85,6 +83,7 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
           photo.albums = result[0];
           albumsName = result[1];
           print(albumsName);
+          print(photo.albums);
         });
       }
     });

@@ -8,12 +8,11 @@ class Album {
   DateTime dateChanged;
 
   Album(this.name);
-Album.fromFirestore(DocumentSnapshot doc) {
+  Album.fromFirestore(DocumentSnapshot doc) {
     id = doc.documentID;
     name = doc.data['name'];
-    dateChanged = (doc.data['dateChanged'] as Timestamp).toDate(); 
+    dateChanged = (doc.data['dateChanged'] as Timestamp).toDate();
   }
-
 }
 
 class Photo {
@@ -33,7 +32,6 @@ class Photo {
   }
 }
 
-
 // Stream<List<Photo>> photoSnapshots() {
 //   return Firestore.instance
 //       .collection('imgs')
@@ -51,47 +49,52 @@ addPhoto(Photo photo, String key) {
     'description': photo.description,
     'date': photo.date,
     'time': photo.time,
-    "albums": photo.albums,
+    "albums": [],
     'storageId': photo.storageId
-
   });
-    photo.albums.map((albumReference)=> addAlbumToImage(key, albumReference, photo.url));
+  addAlbumToImage(key, photo.albums, photo.url);
   //aqui se tendría que enviar la referencia de esta imagen al album
 }
 
 deletePhoto(Photo photo) {
   Firestore.instance.document('imgs/${photo.id}').delete();
-  FirebaseStorage.instance.ref().child("Post Images").child(photo.storageId).delete();
+  FirebaseStorage.instance
+      .ref()
+      .child("Post Images")
+      .child(photo.storageId)
+      .delete();
 }
 
 deletePhotoById(String id, String storageId) {
   FirebaseStorage.instance.ref().child("Post Images").child(storageId).delete();
   Firestore.instance.document('imgs/$id').delete();
-
 }
-
 
 ///////////////ALBUMS//////////////
 
-addAlbum(String name){
+addAlbum(String name) {
   Firestore.instance.collection('albums').add({
+    'bg': '',
     'name': name,
     'dateChanged': Timestamp.fromDate(DateTime.now()),
   });
 }
 
-deleteAlbum(Album album){
-   Firestore.instance.document('albums/${album.id}').delete();
+deleteAlbum(String albumId) {
+  Firestore.instance.document('albums/$albumId').delete();
 }
 
-
-
-
-addAlbumToImage(String idPhoto, String idAlbum, String urlPhoto){
+addAlbumToImage(String idPhoto, albums, String urlPhoto) {
   //HE INCLUIDO ESTO AQUI PARA QUE CUANDO SE SUBA UNA IMAGEN SE ACTUALIZE EL VALOR bg DEL ALBUM
   //ENTIENDO QUE AQUÍ SE ENTRA AL SUBIR LA IMAGEN
-  Firestore.instance.document('albums/$idAlbum').updateData({'bg': urlPhoto, 'dateChanged': Timestamp.fromDate(DateTime.now())});
-  Firestore.instance.document('imgs/$idPhoto').updateData({
-              //"albums":firebase.firestore.FieldValue.arrayUnion($idAlbum)
-            });
+  albums.forEach((album) => {
+        Firestore.instance.document('albums/$album').updateData({
+          'bg': urlPhoto,
+          'dateChanged': Timestamp.fromDate(DateTime.now())
+        }),
+      });
+
+  Firestore.instance.collection('imgs').document(idPhoto).updateData({
+    "albums": albums,
+  });
 }
