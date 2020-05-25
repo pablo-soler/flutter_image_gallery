@@ -110,7 +110,7 @@ class LateralMenu extends StatelessWidget {
                     image: DecorationImage(
                       image: CacheImage(docs[i].data['bg'] != ""
                           ? docs[i].data['bg']
-                          : CacheImage("https://748073e22e8db794416a-cc51ef6b37841580002827d4d94d19b6.ssl.cf3.rackcdn.com/not-found.png")),
+                          : "https://748073e22e8db794416a-cc51ef6b37841580002827d4d94d19b6.ssl.cf3.rackcdn.com/not-found.png"),
                       fit: BoxFit.cover,
                     ),
                   ),
