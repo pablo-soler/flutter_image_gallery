@@ -80,8 +80,8 @@ addAlbum(String name) {
   });
 }
 
-deleteAlbum(Album album) {
-  Firestore.instance.document('albums/${album.id}').delete();
+deleteAlbum(String albumId) {
+  Firestore.instance.document('albums/$albumId').delete();
 }
 
 addAlbumToImage(String idPhoto, albums, String urlPhoto) {
@@ -92,7 +92,6 @@ addAlbumToImage(String idPhoto, albums, String urlPhoto) {
           'bg': urlPhoto,
           'dateChanged': Timestamp.fromDate(DateTime.now())
         }),
-        print(album)
       });
 
   Firestore.instance.collection('imgs').document(idPhoto).updateData({

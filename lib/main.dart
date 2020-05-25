@@ -101,6 +101,7 @@ class LateralMenu extends StatelessWidget {
                       .actualAlbum(docs[i]);
                   Navigator.pop(context);
                 },
+                onLongPress: (){_showDeleteDialog(docs[i].documentID, context);},
                 child: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
@@ -124,7 +125,40 @@ class LateralMenu extends StatelessWidget {
       },
     ));
   }
-
+   Future<void> _showDeleteDialog(String id, context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Album'),
+          content: SingleChildScrollView(
+            child: Text('Would you like to delete this album?'),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('Accept'),
+              onPressed: () {
+                deleteAlbum(id);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => App(),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+   }
+    
   Future<void> _showAddAlbumDialog(context) async {
     TextEditingController myController = TextEditingController();
     return showDialog<void>(
@@ -338,7 +372,7 @@ class PhotoGallery extends StatelessWidget {
                 deletePhotoById(id, storageId);
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => ImageGallery(),
+                    builder: (context) =>  App(),
                   ),
                 );
               },
