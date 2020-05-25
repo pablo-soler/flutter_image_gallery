@@ -63,6 +63,8 @@ class _AlbumListState extends State<AlbumList> {
                 },
                 title: Text(albums[index].data['name']),
                 leading: Checkbox(
+                  activeColor: Colors.grey[900],
+                  checkColor: Colors.red,
                   value: albumsIndex[index],
                   onChanged: (_) => setState(() {
                     albumsIndex[index] = !albumsIndex[index];
@@ -72,23 +74,42 @@ class _AlbumListState extends State<AlbumList> {
             },
           ),
         ),
-        RaisedButton(
-          child: Text('Save'),
-          onPressed: () {
-            List<String> albumsName = new List();
-            List<String> albumsId = new List();
-            List<List> albumsReference =  new List(2); 
-            for (var i = 0; i < albums.length; i++) {
-              if (albumsIndex[i]) {
-                albumsName.add(albums[i].data['name']);
-                albumsId.add(albums[i].data['id']);
-              }
-            }
-            
-            albumsReference[0] = albumsId;
-            albumsReference[1] = albumsName;
-            Navigator.of(context).pop(albumsReference);
-          },
+        Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Container(
+            // width: 150,
+            decoration: BoxDecoration(
+             color: Colors.red
+            ),
+            height: 50,
+            child: InkWell(
+              onTap: () {
+                List<String> albumsName = new List();
+                List<String> albumsId = new List();
+                List<List> albumsReference = new List(2);
+                for (var i = 0; i < albums.length; i++) {
+                  if (albumsIndex[i]) {
+                    albumsName.add(albums[i].data['name']);
+                    albumsId.add(albums[i].data['id']);
+                  }
+                }
+
+                albumsReference[0] = albumsId;
+                albumsReference[1] = albumsName;
+                Navigator.of(context).pop(albumsReference);
+              },
+              child: Center(
+                child: Text(
+                  " SELECT ALBUMS",
+                  style: TextStyle(
+                    fontSize: 17.0,
+                    fontWeight: FontWeight.w800,
+                   
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ],
     );

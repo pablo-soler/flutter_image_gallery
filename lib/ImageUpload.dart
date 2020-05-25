@@ -92,62 +92,93 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
 
   Widget enableUpload() {
     return SingleChildScrollView(
-      child: Container(
-        child: Form(
-          key: formKey,
-          child: Column(children: <Widget>[
-            Image.file(
-              sampleImage,
-            ),
-            SizedBox(
-              height: 15.0,
-            ),
-            Center(
-              child: Container(
-                width: 300,
-                child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Description',
-                    ),
-                    validator: (value) {
-                      return value.isEmpty ? 'Description is required' : null;
-                    },
-                    onSaved: (value) {
-                      photo.description = value;
-                    }),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          child: Form(
+            key: formKey,
+            child: Column(children: <Widget>[
+              Image.file(
+                sampleImage,
               ),
-            ),
-            SizedBox(
-              height: 15.0,
-            ),
-            RaisedButton(
-              padding: EdgeInsets.all(5.0),
-              child: Text('ADD ALBUMS'),
-              onPressed: () => callAlbums(),
-            ),
-            Container(
-              height: 30.0,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 20, right: 20),
+              SizedBox(
+                height: 15.0,
+              ),
+              Center(
+                child: Container(
+                  padding: EdgeInsets.only(left: 25, right: 25),
+                  child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Description',
+                      ),
+                      validator: (value) {
+                        return value.isEmpty ? 'Description is required' : null;
+                      },
+                      onSaved: (value) {
+                        photo.description = value;
+                      }),
+                ),
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  padding: EdgeInsets.only(left: 25, right: 25),
+                  child: Text(
+                    'Albums',
+                    style: TextStyle(
+                      color: Colors.grey[500],
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                height: 40.0,
+                padding: EdgeInsets.only(left: 20, right: 20),
                 child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
+                    scrollDirection: Axis.horizontal,
                     itemCount: albumsName.length,
                     itemBuilder: (BuildContext ctxt, int index) {
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: new Text(albumsName[index]),
+                        child: new Text(albumsName[index] + ','),
                       );
                     }),
               ),
-            ),
-            RaisedButton(
-              child: Text("Upload Image"),
-              elevation: 10.0,
-              textColor: Colors.white,
-              color: Colors.green,
-              onPressed: uploadStatusImage,
-            ),
-          ]),
+              Padding(
+                padding: EdgeInsets.only(left: 20, right: 20),
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Container(
+                    width: 150,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.red,
+                        width: 1,
+                      ),
+                    ),
+                    height: 35,
+                    child: InkWell(
+                      onTap: () => callAlbums(),
+                      child: Center(
+                        child: Text(
+                          " SELECT ALBUMS",
+                          style: TextStyle(
+                            fontSize: 13.0,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ]),
+          ),
         ),
       ),
     );
@@ -163,9 +194,9 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
         child: sampleImage == null ? Text("Select an Image") : enableUpload(),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: getImage,
-        tooltip: 'Add image',
-        child: Icon(Icons.add),
+        onPressed: sampleImage == null ? getImage : uploadStatusImage,
+        tooltip: sampleImage == null ? 'Add image' : 'Upload image',
+        child: sampleImage == null ? Icon(Icons.add) : Icon(Icons.check),
       ),
     );
   }

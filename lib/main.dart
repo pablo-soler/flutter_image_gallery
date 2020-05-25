@@ -6,6 +6,7 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'ImageUpload.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() => runApp(App());
 
@@ -23,7 +24,6 @@ class ActualAlbum with ChangeNotifier {
     notifyListeners();
     print(name);
   }
-  
 
   allPhotos() {
     _id = '';
@@ -46,9 +46,22 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        primaryColor: Colors.grey[900],
+        accentColor: Colors.red,
+        buttonColor: Colors.red,
+        fontFamily: 'Nunito',
+      ),
       home: Scaffold(
         appBar: AppBar(
-          title: Text(Provider.of<ActualAlbum>(context).name),
+          title: Text(
+            Provider.of<ActualAlbum>(context).name,
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
         drawer: LateralMenu(),
         body: ImageGallery(),
@@ -62,20 +75,28 @@ class LateralMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> list = <Widget>[];
-    list.add(FlatButton(
-      child: Text("NEW ALBUM"),
-      color: Colors.amberAccent,
-      onPressed: () {},
-    ));
+
     list.add(
       Container(
-        child: InkWell(
-          onTap: () {
-            Provider.of<ActualAlbum>(context, listen: false).allPhotos();
-            Navigator.pop(context);
-          },
-          child: ListTile(
-            title: Text("ALL PHOTOS"),
+        height: 80,
+        child: Center(
+          child: InkWell(
+            onTap: () {
+              Provider.of<ActualAlbum>(context, listen: false).allPhotos();
+              Navigator.pop(context);
+            },
+            child: ListTile(
+              title: Text(
+                "All photos",
+                style: TextStyle(
+                  fontSize: 17.0,
+                  fontWeight: FontWeight.w800,
+                  color: Provider.of<ActualAlbum>(context).id == ''
+                      ? Colors.red
+                      : Colors.white,
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -93,27 +114,79 @@ class LateralMenu extends StatelessWidget {
           List<DocumentSnapshot> docs = snapshot.data.documents;
           for (var i = 0; i < docs.length; i++) {
             list.add(
-              InkWell(
-                onTap: () {
-                  Provider.of<ActualAlbum>(context, listen: false)
-                      .actualAlbum(docs[i]);
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(
-                          docs[i].data['bg'] != null ? docs[i].data['bg'] : "" ),
-                      fit: BoxFit.cover,
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 4, right: 4, top: 2, bottom: 2),
+                child: InkWell(
+                  onTap: () {
+                    Provider.of<ActualAlbum>(context, listen: false)
+                        .actualAlbum(docs[i]);
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    height: 100,
+                    decoration: BoxDecoration(
+                      border: docs[i].data['name'] ==
+                              Provider.of<ActualAlbum>(context).name
+                          ? Border.all(color: Colors.red, width: 2)
+                          : null,
+                      image: DecorationImage(
+                        colorFilter: ColorFilter.mode(
+                            Colors.black.withOpacity(docs[i].data['name'] ==
+                                    Provider.of<ActualAlbum>(context).name
+                                ? 0.3
+                                : 0.6),
+                            BlendMode.dstATop),
+                        image: NetworkImage(docs[i].data['bg'] != null
+                            ? docs[i].data['bg']
+                            : ""),
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
-                  child: ListTile(
-                    title: Text(docs[i].data['name']),
+                    child: ListTile(
+                      title: Text(docs[i].data['name'],
+                          style: TextStyle(
+                            fontSize: 17.0,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            shadows: <Shadow>[
+                              Shadow(
+                                blurRadius: 100.0,
+                                color: Colors.black,
+                              ),
+                              Shadow(
+                                blurRadius: 50.0,
+                                color: Colors.black,
+                              ),
+                            ],
+                          )),
+                    ),
                   ),
                 ),
               ),
             );
           }
+          list.add(
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Container(
+                height: 50,
+                child: InkWell(
+                  onTap: () {},
+                  child: Center(
+                    child: Text(
+                      "ADD NEW ALBUM",
+                      style: TextStyle(
+                        fontSize: 17.0,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
           return ListView(
             children: list,
           );
@@ -204,7 +277,7 @@ class ImagePage extends StatelessWidget {
     );
   }
 }
- 
+
 class PhotoGallery extends StatelessWidget {
   final galleryItems;
   final int initialPos;
