@@ -50,8 +50,8 @@ class _UploadPhotoPageState extends State<UploadPhotoPage> {
       photo.storageId = timeKey.toString();
       var imageUrl = await (await uploadTask.onComplete).ref.getDownloadURL();
       photo.url = imageUrl.toString();
-      goToHome();
       saveToDatabase();
+      goToHome(); 
     }
   }
 

@@ -3,7 +3,6 @@ import 'package:image_galery/bd.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'ImageUpload.dart';
 import 'package:provider/provider.dart';
@@ -227,7 +226,7 @@ class LateralMenu extends StatelessWidget {
                 deleteAlbum(id);
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => App(),
+                    builder: (context) => MainApp(),
                   ),
                 );
               },
@@ -277,7 +276,7 @@ class LateralMenu extends StatelessWidget {
                   addAlbum(myController.value.text);
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => App(),
+                      builder: (context) => MainApp(),
                     ),
                   );
                 }
@@ -369,7 +368,7 @@ class PhotoGallery extends StatelessWidget {
         addAlbumToImage(photoId, result[0], url);
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => App(),
+            builder: (context) => MainApp(),
           ),
         );
       }
@@ -457,7 +456,7 @@ class PhotoGallery extends StatelessWidget {
                 deletePhotoById(id, storageId);
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => App(),
+                    builder: (context) => MainApp(),
                   ),
                 );
               },
