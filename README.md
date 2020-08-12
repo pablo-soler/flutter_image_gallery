@@ -1,6 +1,6 @@
-# image_galery
+# flutter_image_galery
 
-A new Flutter project.
+An application to save photos in the cloud as google photos. Firebase is used as a dynamic database for images and categories.
 
 ## Getting Started
 
